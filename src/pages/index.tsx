@@ -7,6 +7,8 @@ import { api } from '../services/api';
 import { ConvertDurationToTimeString } from '../utils/Date';
 
 import styles from './home.module.scss';
+import { PlayerContext } from '../contexts/PlayerContext';
+import { useContext } from 'react';
 
 type Episode = {
   id: string;
@@ -25,6 +27,7 @@ type HomeProps = {
 }
 
 export default function Home({ latestEpisodes, allEpisodes }: HomeProps) {
+  const player = useContext(PlayerContext);
 
   //   SPA (React)
   // useEffect(() => {
@@ -34,7 +37,7 @@ export default function Home({ latestEpisodes, allEpisodes }: HomeProps) {
   return (
     <div className={styles.homePage}>
       <section className={styles.latestEpisodes}>
-        <h2>Last Releases</h2>
+        <h2>Last Releases {player}</h2>
 
         <ul>
           {latestEpisodes.map(ep => {
