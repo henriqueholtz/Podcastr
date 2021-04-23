@@ -7,6 +7,7 @@ import ptBR from 'date-fns/locale/pt-BR';
 import { api } from '../../services/api';
 import { ConvertDurationToTimeString } from '../../utils/Date';
 import styles from './episode.module.scss';
+import { usePlayer } from '../../contexts/PlayerContext';
 
 //Important: 'Slug' can be replaced by any word.
 
@@ -28,6 +29,7 @@ type EpisodeProps = {
 
 export default function Episode({episode}: EpisodeProps) {
     const router = useRouter();
+    const { play } = usePlayer();
 
     if (router.isFallback) {
         //only necessary if fallback: true
@@ -42,7 +44,7 @@ export default function Episode({episode}: EpisodeProps) {
                     </button>
                 </Link>
                 <Image width={700} height={160} src={episode.thumbnail} objectFit="cover"/>
-                <button type="button">
+                <button type="button" onClick={() => play(episode)}>
                     <img src="/play.svg" alt="Play episode"/>
                 </button>
             </div>
