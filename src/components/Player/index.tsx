@@ -7,7 +7,7 @@ import styles from './styles.module.scss';
 
 export default function Player() {
     const audioRef = useRef<HTMLAudioElement>(null);
-    const { episodeList, currentEpisodeIndex, isPlaying, togglePlay } = useContext(PlayerContext);
+    const { episodeList, currentEpisodeIndex, isPlaying, togglePlay, setPlayingState } = useContext(PlayerContext);
     const episode = episodeList[currentEpisodeIndex];
 
     useEffect(() => {
@@ -54,7 +54,7 @@ export default function Player() {
                 </div>
 
                 { episode && (
-                    <audio src={episode.url} autoPlay ref={audioRef} />
+                    <audio src={episode.url} autoPlay ref={audioRef} onPlay={() => setPlayingState(true)} onPause={() => setPlayingState(false)} />
                 )}
 
                 <div className={styles.buttons}>
