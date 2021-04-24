@@ -1,14 +1,16 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Slider from 'rc-slider'
 import 'rc-slider/assets/index.css'
 import { usePlayer } from '../../contexts/PlayerContext';
 import styles from './styles.module.scss';
+import { ConvertDurationToTimeString } from '../../utils/Date';
 
 export default function Player() {
     const audioRef = useRef<HTMLAudioElement>(null);
-    const { episodeList, currentEpisodeIndex, isPlaying, togglePlay, toggleLoop, toggleShuffle, setPlayingState, playNext, playPrevious, hasNext, hasPrevious, isLooping, isShuffling } = usePlayer();
+    const { episodeList, currentEpisodeIndex, isPlaying, togglePlay, toggleLoop, toggleShuffle, setPlayingState, playNext, playPrevious, hasNext, hasPrevious, isLooping, isShuffling, clearPlayerState } = usePlayer();
     const episode = episodeList[currentEpisodeIndex];
+    const [progress, setProgress] = useState(0);
 
     useEffect(() => {
         if(!audioRef.current) {
@@ -20,6 +22,28 @@ export default function Player() {
         else
             audioRef.current.pause();
     }, [isPlaying])
+
+    function setupProgressListner() {
+        audioRef.current.currentTime = 0;
+
+        audioRef.current.addEventListener('timeupdate', () => {
+            setProgress(Math.floor(audioRef.current.currentTime))
+        })
+    }
+
+    function handleSeek(amount: number) {
+        audioRef.current.currentTime = amount;
+        setProgress(amount);
+    }
+
+    function hamdleEpisodeEnded() {
+        if(hasNext){
+            playNext();
+        }
+        else {
+            clearPlayerState();
+        }
+    }
 
     return (
         <div className={styles.playerContainer}>
@@ -42,19 +66,19 @@ export default function Player() {
 
             <footer className={!episode ? styles.empty : ''}>
                 <div className={styles.progress}>
-                    <span>00:00</span>
+                    <span>{ConvertDurationToTimeString(progress)}</span>
                     <div className={styles.slider}>
                         {episode ? (
-                            <Slider trackStyle={{backgroundColor: '#84d361'}} railStyle={{ backgroundColor: '#9f75ff'}} handleStyle={{ borderColor: '#84d361', borderWidth: 4}} />
+                            <Slider max={episode.duration} value={progress} onChange={handleSeek} trackStyle={{backgroundColor: '#84d361'}} railStyle={{ backgroundColor: '#9f75ff'}} handleStyle={{ borderColor: '#84d361', borderWidth: 4}} />
                         ) : (
                             <div className={styles.emptySlider} />
                         )}
                     </div>
-                    <span>00:00</span>
+                    <span>{ConvertDurationToTimeString(episode?.duration ?? 0)}</span>
                 </div>
 
                 { episode && (
-                    <audio src={episode.url} autoPlay loop={isLooping} ref={audioRef} onPlay={() => setPlayingState(true)} onPause={() => setPlayingState(false)} />
+                    <audio src={episode.url} autoPlay loop={isLooping} ref={audioRef} onPlay={() => setPlayingState(true)} onPause={() => setPlayingState(false)} onLoadedMetadata={setupProgressListner} onEnded={hamdleEpisodeEnded} />
                 )}
 
                 <div className={styles.buttons}>
