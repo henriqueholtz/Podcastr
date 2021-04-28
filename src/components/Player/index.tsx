@@ -5,12 +5,25 @@ import 'rc-slider/assets/index.css'
 import { usePlayer } from '../../contexts/PlayerContext';
 import styles from './styles.module.scss';
 import { ConvertDurationToTimeString } from '../../utils/Date';
+import Sound from '../SliderSound/Sound';
 
 export default function Player() {
     const audioRef = useRef<HTMLAudioElement>(null);
     const { episodeList, currentEpisodeIndex, isPlaying, togglePlay, toggleLoop, toggleShuffle, setPlayingState, playNext, playPrevious, hasNext, hasPrevious, isLooping, isShuffling, clearPlayerState } = usePlayer();
     const episode = episodeList[currentEpisodeIndex];
     const [progress, setProgress] = useState(0);
+    const [volume, setVolume] = useState(0.5);
+    const [enbaleSoundChange, setEnbaleSoundChange] = useState(false)
+
+    useEffect(() => {
+        setEnbaleSoundChange(false);
+    }, [episode, isPlaying])
+
+    useEffect(() => {
+        setTimeout(() => {
+            setEnbaleSoundChange(false);
+          }, 5000);
+    }, [volume])
 
     useEffect(() => {
         if(!audioRef.current) {
@@ -36,13 +49,22 @@ export default function Player() {
         setProgress(amount);
     }
 
-    function hamdleEpisodeEnded() {
+    function handleEpisodeEnded() {
         if(hasNext){
             playNext();
         }
         else {
             clearPlayerState();
         }
+    }
+
+    function toggleVolume(amount: number) { 
+        audioRef.current.volume = amount
+        setVolume(amount)
+    }
+
+    function toggleVolumeChange() {
+        setEnbaleSoundChange(!enbaleSoundChange);
     }
 
     return (
@@ -78,7 +100,7 @@ export default function Player() {
                 </div>
 
                 { episode && (
-                    <audio src={episode.url} autoPlay loop={isLooping} ref={audioRef} onPlay={() => setPlayingState(true)} onPause={() => setPlayingState(false)} onLoadedMetadata={setupProgressListner} onEnded={hamdleEpisodeEnded} />
+                    <audio src={episode.url} autoPlay loop={isLooping} ref={audioRef} onPlay={() => setPlayingState(true)} onPause={() => setPlayingState(false)} onLoadedMetadata={setupProgressListner} onEnded={handleEpisodeEnded} />
                 )}
 
                 <div className={styles.buttons}>
@@ -101,6 +123,16 @@ export default function Player() {
                     <button type="button" disabled={!episode} onClick={toggleLoop} className={isLooping ? styles.isActive : ''} >
                         <img src="/repeat.svg" alt="repeat"/>
                     </button>
+
+                    <div className={styles.soundWrapper}>
+                        <button type="button" disabled={!episode} onClick={toggleVolumeChange}>
+                            <Sound width={28} height={28} />
+                        </button>
+                        
+                        {enbaleSoundChange && episode && (
+                            <Slider className={styles.sliderSound} vertical value={volume} onChange={toggleVolume} trackStyle={{backgroundColor: '#84d361'}} railStyle={{ backgroundColor: '#9f75ff'}} handleStyle={{ borderColor: '#84d361', borderWidth: 4}} min={0} max={1} step={0.05}/>
+                        )}
+                    </div>
                 </div>
             </footer>
         </div>

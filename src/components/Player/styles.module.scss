@@ -140,4 +140,15 @@
       }
     }
   }
+
+  .soundWrapper {
+    position: relative;
+
+    .sliderSound {
+      height: 5rem;
+      position: absolute;
+      bottom: 5px;
+      left: 2.1rem;
+    }
+  }
 }
