@@ -85,6 +85,7 @@ function playList(list: Episode[], index: number) {
   function clearPlayerState() {
       setEpisodeList([]);
       setCurrentEpisodeIndex(0);
+      setPlayingState(false);
   }
 
   const hasPrevious = currentEpisodeIndex > 0;

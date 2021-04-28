@@ -5,7 +5,7 @@ import 'rc-slider/assets/index.css'
 import { usePlayer } from '../../contexts/PlayerContext';
 import styles from './styles.module.scss';
 import { ConvertDurationToTimeString } from '../../utils/Date';
-import Sound from '../SliderSound/Sound';
+import Sound from '../SoundIcon/Sound';
 
 export default function Player() {
     const audioRef = useRef<HTMLAudioElement>(null);
@@ -40,7 +40,7 @@ export default function Player() {
         audioRef.current.currentTime = 0;
 
         audioRef.current.addEventListener('timeupdate', () => {
-            setProgress(Math.floor(audioRef.current.currentTime))
+            setProgress(Math.floor(audioRef?.current?.currentTime) || 0)
         })
     }
 
@@ -72,6 +72,7 @@ export default function Player() {
             <header>
                 <img src="/playing.svg" alt="Playing now" />
                 <strong>Playing now</strong>
+                {episode && <img className={styles.clearPlayer} src="/close.svg" alt="Clear Player" onClick={() => clearPlayerState()} />}
             </header>
             
             {episode ? (
